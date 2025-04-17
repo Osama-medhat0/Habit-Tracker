@@ -92,7 +92,7 @@ class _EditHabitPageState extends State<EditHabitPage> {
                               ),
                               actions: [
                                 TextButton(
-                                  onPressed: () => Navigator.pop(context),
+                                  onPressed: () => {Navigator.pop(context)},
                                   child: const Text("Cancel"),
                                 ),
                                 TextButton(

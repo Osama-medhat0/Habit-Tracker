@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:habit_tracker/components/habit_tile.dart';
 import 'package:habit_tracker/components/my_fab.dart';
 import 'package:habit_tracker/components/new_habit.dart';
+import 'package:habit_tracker/database/habit_database.dart';
 import 'package:habit_tracker/pages/edit_habit_page.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,20 +14,37 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  HabitDatabase db = HabitDatabase();
+  final _myBox = Hive.box("habit_Database");
+
+  @override
+  void initState() {
+    //if there is no data, create initial data
+    if (_myBox.get("Current_Habit_List") == null) {
+      db.createIntialData();
+    }
+    //else load data
+    else {
+      db.loadData();
+    }
+
+    //update database
+    db.updateDatabase();
+
+    super.initState();
+  }
+
   //controller for habit name
   bool habitCompleted = false;
-
-  List HabitList = [
-    ["Drink water", false],
-    ["Morning run", false],
-    ["Read book", false],
-  ];
 
   //checkbox
   void checkboxChanged(bool? value, int index) {
     setState(() {
-      HabitList[index][1] = value!;
+      db.todaysHabitList[index][1] = value!;
     });
+
+    //update database
+    db.updateDatabase();
   }
 
   //create new habit
@@ -46,10 +65,13 @@ class _HomePageState extends State<HomePage> {
   //save habit
   void saveNewHabit() {
     setState(() {
-      HabitList.add([_newHabitNameController.text, false]);
+      db.todaysHabitList.add([_newHabitNameController.text, false]);
     });
     Navigator.of(context).pop();
     _newHabitNameController.clear();
+
+    //update database
+    db.updateDatabase();
   }
 
   //cancel func
@@ -66,24 +88,31 @@ class _HomePageState extends State<HomePage> {
         onPressed: () => createNewHabit(),
       ),
       body: ListView.builder(
-        itemCount: HabitList.length,
+        itemCount: db.todaysHabitList.length,
         itemBuilder: (context, index) {
           return HabitTile(
-            habitName: HabitList[index][0],
-            habitCompleted: HabitList[index][1],
+            habitName: db.todaysHabitList[index][0],
+            habitCompleted: db.todaysHabitList[index][1],
             onChanged: (value) => checkboxChanged(value, index),
             settingsPressed: (context) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder:
-                      (context) =>
-                          EditHabitPage(habitName: HabitList[index][0]),
+                      (context) => EditHabitPage(
+                        habitName: db.todaysHabitList[index][0],
+                      ),
                 ),
               ).then((value) {
-                if (value != null) {
+                if (value == 'delete') {
                   setState(() {
-                    HabitList[index][0] = value;
+                    db.todaysHabitList.removeAt(index);
+                    db.updateDatabase(); // ⬅️ important!
+                  });
+                } else if (value != null) {
+                  setState(() {
+                    db.todaysHabitList[index][0] = value;
+                    db.updateDatabase(); // ⬅️ also update after renaming
                   });
                 }
               });
