@@ -42,6 +42,8 @@ class HabitTile extends StatelessWidget {
             children: [
               Checkbox(value: habitCompleted, onChanged: onChanged),
               Text(habitName),
+              Spacer(), // Pushes the arrow to the far right
+              Icon(Icons.arrow_back_ios, size: 16, color: Colors.grey),
             ],
           ),
         ),

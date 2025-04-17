@@ -65,7 +65,7 @@ class _EditHabitPageState extends State<EditHabitPage> {
                       Navigator.pop(context, controller.text.trim());
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green[400],
+                      backgroundColor: const Color.fromARGB(255, 103, 39, 242),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),

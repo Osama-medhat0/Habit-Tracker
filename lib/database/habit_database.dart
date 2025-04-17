@@ -8,6 +8,9 @@ final _myBox = Hive.box("habit_Database");
 class HabitDatabase {
   List todaysHabitList = [];
 
+  //map for heatmap-style visualizations
+  Map<DateTime, int> heatMapDataSet = {};
+
   //inital data
   void createIntialData() {
     todaysHabitList = [
@@ -42,5 +45,60 @@ class HabitDatabase {
 
     //update habit list in db (new habits, edit habits, delete habits)
     _myBox.put("Current_Habit_List", todaysHabitList);
+
+    //calculate habits progress
+    calculateHabitPercentage();
+
+    //load heatmap
+    loadHeatMap();
+  }
+
+  //Heatmap func
+  void loadHeatMap() {
+    DateTime startDate = createDateTimeObject(_myBox.get("Start_Date"));
+
+    //cont number of days since start date to load
+    int daysInBetween = DateTime.now().difference(startDate).inDays;
+
+    for (int i = 0; i < daysInBetween + 1; i++) {
+      String yyymmdd = convertDateTimeToString(
+        startDate.add(Duration(days: i)),
+      );
+
+      double strengthAsPercent = double.parse(
+        _myBox.get("Habit_Percentage_$yyymmdd") ?? "0.0",
+      );
+
+      ///year, month, day
+      int year = startDate.add(Duration(days: i)).year;
+      int month = startDate.add(Duration(days: i)).month;
+      int day = startDate.add(Duration(days: i)).day;
+
+      final percentForEachDay = <DateTime, int>{
+        DateTime(year, month, day): (10 * strengthAsPercent).toInt(),
+      };
+
+      heatMapDataSet.addEntries(percentForEachDay.entries);
+      print("Heatmap data: $heatMapDataSet");
+    }
+  }
+
+  void calculateHabitPercentage() {
+    //calculate percentage of habits completed
+    int completedHabitCount = 0;
+    for (int i = 0; i < todaysHabitList.length; i++) {
+      if (todaysHabitList[i][1] == true) {
+        completedHabitCount++;
+      }
+    }
+
+    //calculate percentage
+    String percentage =
+        todaysHabitList.isEmpty
+            ? '0.0'
+            : (completedHabitCount / todaysHabitList.length).toStringAsFixed(1);
+
+    //update percentage in db
+    _myBox.put("Habit_Percentage_${getTodayDate()}", percentage);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habit_tracker/components/habit_tile.dart';
+import 'package:habit_tracker/components/monthly_progress.dart';
 import 'package:habit_tracker/components/my_fab.dart';
 import 'package:habit_tracker/components/new_habit.dart';
 import 'package:habit_tracker/database/habit_database.dart';
@@ -30,6 +31,9 @@ class _HomePageState extends State<HomePage> {
 
     //update database
     db.updateDatabase();
+
+    print("Hive DB contents:");
+    print(_myBox.toMap());
 
     super.initState();
   }
@@ -87,38 +91,48 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: MyFloatActionButton(
         onPressed: () => createNewHabit(),
       ),
-      body: ListView.builder(
-        itemCount: db.todaysHabitList.length,
-        itemBuilder: (context, index) {
-          return HabitTile(
-            habitName: db.todaysHabitList[index][0],
-            habitCompleted: db.todaysHabitList[index][1],
-            onChanged: (value) => checkboxChanged(value, index),
-            settingsPressed: (context) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => EditHabitPage(
-                        habitName: db.todaysHabitList[index][0],
-                      ),
-                ),
-              ).then((value) {
-                if (value == 'delete') {
-                  setState(() {
-                    db.todaysHabitList.removeAt(index);
-                    db.updateDatabase(); // ⬅️ important!
+      body: ListView(
+        children: [
+          MonthlyProgress(
+            datasets: db.heatMapDataSet,
+            startDate: _myBox.get("Start_Date"),
+          ),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: db.todaysHabitList.length,
+            itemBuilder: (context, index) {
+              return HabitTile(
+                habitName: db.todaysHabitList[index][0],
+                habitCompleted: db.todaysHabitList[index][1],
+                onChanged: (value) => checkboxChanged(value, index),
+                settingsPressed: (context) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => EditHabitPage(
+                            habitName: db.todaysHabitList[index][0],
+                          ),
+                    ),
+                  ).then((value) {
+                    if (value == 'delete') {
+                      setState(() {
+                        db.todaysHabitList.removeAt(index);
+                        db.updateDatabase(); // ⬅️ important!
+                      });
+                    } else if (value != null) {
+                      setState(() {
+                        db.todaysHabitList[index][0] = value;
+                        db.updateDatabase(); // ⬅️ also update after renaming
+                      });
+                    }
                   });
-                } else if (value != null) {
-                  setState(() {
-                    db.todaysHabitList[index][0] = value;
-                    db.updateDatabase(); // ⬅️ also update after renaming
-                  });
-                }
-              });
+                },
+              );
             },
-          );
-        },
+          ),
+        ],
       ),
     );
   }
