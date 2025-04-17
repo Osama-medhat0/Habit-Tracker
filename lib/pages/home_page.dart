@@ -87,18 +87,29 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.grey[200],
       floatingActionButton: MyFloatActionButton(
         onPressed: () => createNewHabit(),
       ),
       body: ListView(
         children: [
+          IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: Color.fromARGB(255, 152, 91, 237),
+              size: 30,
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
           MonthlyProgress(
             datasets: db.heatMapDataSet,
             startDate: _myBox.get("Start_Date"),
           ),
           ListView.builder(
             shrinkWrap: true,
+
             physics: const NeverScrollableScrollPhysics(),
             itemCount: db.todaysHabitList.length,
             itemBuilder: (context, index) {
@@ -119,12 +130,12 @@ class _HomePageState extends State<HomePage> {
                     if (value == 'delete') {
                       setState(() {
                         db.todaysHabitList.removeAt(index);
-                        db.updateDatabase(); // ⬅️ important!
+                        db.updateDatabase();
                       });
                     } else if (value != null) {
                       setState(() {
                         db.todaysHabitList[index][0] = value;
-                        db.updateDatabase(); // ⬅️ also update after renaming
+                        db.updateDatabase(); // also update after renaming
                       });
                     }
                   });
