@@ -1,8 +1,64 @@
 import 'package:flutter/material.dart';
-import 'package:habit_tracker/pages/register.dart';
+import 'package:habit_tracker/pages/dashboard_screen.dart';
+import 'package:habit_tracker/pages/sign_up.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hive/hive.dart';
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
+  @override
+  _LoginState createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  Future signIn() async {
+    try {
+      //sign in with Firbase
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          );
+
+      if (userCredential.user != null) {
+        // Store some user data locally
+        var box = await Hive.openBox('userBox');
+        box.put('uid', userCredential.user!.uid);
+
+        await Hive.openBox("habits_${userCredential.user!.uid}");
+
+        final email = userCredential.user?.email ?? '';
+        final userName = email.split('@')[0];
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) => DashboardScreen(
+                  userName: userName,
+                  uid: userCredential.user!.uid,
+                ),
+          ),
+        );
+      }
+    } catch (e) {
+      // Handle login error
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login failed. Please check your credentials.')),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +74,7 @@ class Login extends StatelessWidget {
               children: [
                 SizedBox(height: 120),
 
-                // Register Title
+                // Title
                 Center(
                   child: Text(
                     "Login",
@@ -32,17 +88,21 @@ class Login extends StatelessWidget {
                 ),
                 SizedBox(height: 50),
 
-                // Input Fields
+                // Form Fields
                 Form(
                   key: _formKey,
                   child: Column(
                     children: [
-                      buildTextField("Email"),
+                      buildTextField("Email", _emailController),
                       SizedBox(height: 12),
-                      buildTextField("Password", isPassword: true),
-                      SizedBox(height: 12),
+                      buildTextField(
+                        "Password",
+                        _passwordController,
+                        isPassword: true,
+                      ),
+                      SizedBox(height: 20),
 
-                      // Register Button
+                      // Login Button
                       SizedBox(
                         width: double.infinity,
                         height: 50,
@@ -54,7 +114,9 @@ class Login extends StatelessWidget {
                             ),
                           ),
                           onPressed: () {
-                            // Register action
+                            if (_formKey.currentState!.validate()) {
+                              signIn(); // Call the signIn method
+                            }
                           },
                           child: Text(
                             "LOGIN",
@@ -68,7 +130,7 @@ class Login extends StatelessWidget {
                       ),
                       SizedBox(height: 30),
 
-                      // Sign In Text
+                      // Sign Up Link
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -103,9 +165,20 @@ class Login extends StatelessWidget {
     );
   }
 
-  Widget buildTextField(String hint, {bool isPassword = false}) {
+  Widget buildTextField(
+    String hint,
+    TextEditingController controller, {
+    bool isPassword = false,
+  }) {
     return TextFormField(
+      controller: controller,
       obscureText: isPassword,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter your $hint';
+        }
+        return null;
+      },
       decoration: InputDecoration(
         hintText: hint,
         filled: true,

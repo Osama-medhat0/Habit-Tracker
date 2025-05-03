@@ -3,15 +3,28 @@ import 'package:habit_tracker/database/habit_database.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:habit_tracker/pages/home_page.dart';
 
-class DashboardScreen extends StatelessWidget {
-  final HabitDatabase habitDb = HabitDatabase();
+class DashboardScreen extends StatefulWidget {
+  final String userName;
+  final String uid;
 
-  DashboardScreen({super.key});
+  const DashboardScreen({super.key, required this.userName, required this.uid});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  late HabitDatabase habitDb;
+
+  @override
+  void initState() {
+    super.initState();
+    habitDb = HabitDatabase(widget.uid);
+    habitDb.loadData(); //
+  }
 
   @override
   Widget build(BuildContext context) {
-    habitDb.loadData();
-
     final total = habitDb.todaysHabitList.length;
     final completed =
         habitDb.todaysHabitList.where((habit) => habit[1] == true).length;
@@ -19,21 +32,20 @@ class DashboardScreen extends StatelessWidget {
     final percent = total == 0 ? 0.0 : completed / total;
 
     return Scaffold(
-      backgroundColor: Color(0xffF5F5F7),
+      backgroundColor: const Color(0xffF5F5F7),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 75),
-
             const Text(
               "Welcome,",
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             Text(
-              "Osama 👋",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              "${widget.userName} 👋",
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 54),
 
@@ -73,9 +85,8 @@ class DashboardScreen extends StatelessWidget {
                         const Text("total", style: TextStyle(fontSize: 15)),
                       ],
                     ),
-
                     circularStrokeCap: CircularStrokeCap.round,
-                    progressColor: Color.fromARGB(255, 152, 91, 237),
+                    progressColor: const Color.fromARGB(255, 152, 91, 237),
                     backgroundColor: Colors.grey.shade300,
                   ),
                   const SizedBox(height: 20),
@@ -86,7 +97,7 @@ class DashboardScreen extends StatelessWidget {
                       _infoColumn(
                         "Completed",
                         completed.toString(),
-                        Color.fromARGB(255, 152, 91, 237),
+                        const Color.fromARGB(255, 152, 91, 237),
                       ),
                       _infoColumn("Pending", pending.toString(), Colors.red),
                     ],
@@ -95,7 +106,7 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
 
-            // Mtivational Messge
+            // Motivational Message
             Container(
               margin: const EdgeInsets.only(top: 20, left: 75),
               padding: const EdgeInsets.all(20),
@@ -104,20 +115,20 @@ class DashboardScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
               ),
               child: RichText(
-                text: const TextSpan(
+                text: TextSpan(
                   children: [
-                    TextSpan(
+                    const TextSpan(
                       text: "💪 Keep it up, ",
                       style: TextStyle(color: Colors.black, fontSize: 16),
                     ),
                     TextSpan(
-                      text: "Osama! \n",
-                      style: TextStyle(
+                      text: "${widget.userName}! \n",
+                      style: const TextStyle(
                         color: Color.fromARGB(255, 152, 91, 237),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    TextSpan(
+                    const TextSpan(
                       text: "Don't you ever give up.",
                       style: TextStyle(color: Colors.black, fontSize: 16),
                     ),
@@ -132,15 +143,22 @@ class DashboardScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => HomePage()),
-                  );
+                    MaterialPageRoute(
+                      builder: (context) => HomePage(uid: widget.uid),
+                    ),
+                  ).then((_) {
+                    // Reload the database when returning from HomePage
+                    setState(() {
+                      habitDb.loadData();
+                    });
+                  });
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 30,
                     vertical: 14,
                   ),
-                  backgroundColor: Color.fromARGB(255, 152, 91, 237),
+                  backgroundColor: const Color.fromARGB(255, 152, 91, 237),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

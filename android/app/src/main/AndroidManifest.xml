@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.Osama.habittracker">
     <application
         android:label="habit_tracker"
         android:name="${applicationName}"

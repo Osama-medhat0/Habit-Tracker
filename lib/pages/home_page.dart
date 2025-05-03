@@ -8,34 +8,35 @@ import 'package:habit_tracker/pages/edit_habit_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String uid;
+  const HomePage({super.key, required this.uid});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  HabitDatabase db = HabitDatabase();
-  final _myBox = Hive.box("habit_Database");
+  late HabitDatabase db;
 
   @override
   void initState() {
-    //if there is no data, create initial data
-    if (_myBox.get("Current_Habit_List") == null) {
+    super.initState();
+
+    // Initialize the database instance with the Hive box
+    db = HabitDatabase(widget.uid);
+
+    // Check if there is any existing habit list in the Hive box
+    if (db.myBox.get("Current_Habit_List") == null) {
       db.createIntialData();
-    }
-    //else load data
-    else {
+    } else {
       db.loadData();
     }
 
-    //update database
+    // Update Hive with current data
     db.updateDatabase();
 
     print("Hive DB contents:");
-    print(_myBox.toMap());
-
-    super.initState();
+    print(db.myBox.toMap());
   }
 
   //controller for habit name
@@ -105,7 +106,7 @@ class _HomePageState extends State<HomePage> {
           ),
           MonthlyProgress(
             datasets: db.heatMapDataSet,
-            startDate: _myBox.get("Start_Date"),
+            startDate: db.myBox.get("Start_Date"),
           ),
           ListView.builder(
             shrinkWrap: true,
