@@ -22,7 +22,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    // Initialize the database instance with the Hive box
+    // Initializing the database instance with the Hive box
     db = HabitDatabase(widget.uid);
 
     // Check if there is any existing habit list in the Hive box
@@ -88,21 +88,27 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: const Color.fromARGB(221, 238, 238, 238),
       floatingActionButton: MyFloatActionButton(
         onPressed: () => createNewHabit(),
       ),
       body: ListView(
         children: [
-          IconButton(
-            icon: Icon(
-              Icons.arrow_back,
-              color: Color.fromARGB(255, 152, 91, 237),
-              size: 30,
+          Padding(
+            padding: const EdgeInsets.only(top: 16.0, left: 8.0),
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: IconButton(
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: Color.fromARGB(255, 152, 91, 237),
+                  size: 30,
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
             ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
           ),
           MonthlyProgress(
             datasets: db.heatMapDataSet,

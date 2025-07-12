@@ -21,8 +21,8 @@ class MonthlyProgress extends StatelessWidget {
         endDate: DateTime.now().add(Duration(days: 0)),
         datasets: datasets, //Records
         colorMode: ColorMode.color,
-        defaultColor: Colors.grey[200],
-        textColor: Colors.white,
+        defaultColor: const Color.fromARGB(179, 238, 238, 238),
+        textColor: const Color.fromARGB(255, 255, 255, 255),
         showColorTip: false,
         showText: true,
         scrollable: true,
