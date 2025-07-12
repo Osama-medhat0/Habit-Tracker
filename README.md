@@ -109,10 +109,10 @@ This document outlines the **data structure and storage strategy** for a Flutter
 ## 📸 Screenshots
 
 <img width="392" height="851" alt="Login" src="https://github.com/user-attachments/assets/357e11c8-3bc3-4556-b53e-ef4105cb1e4d" />
-<img width="389" height="840" alt="Register" src="https://github.com/user-attachments/assets/d9e4991e-23b8-49d0-b97e-3eb41d89b552" />
-<img width="483" height="1065" alt="Heatmap progress" src="https://github.com/user-attachments/assets/f38368f6-d4c6-4c87-b55d-5776b6edd9bd" />
-<img width="393" height="844" alt="Edit" src="https://github.com/user-attachments/assets/48b59b6c-6788-49f1-b58e-928e6c81e416" />
-<img width="385" height="846" alt="Dashboard" src="https://github.com/user-attachments/assets/deb81541-1889-437d-a901-35453f163f94" />
+<img width="392" height="851" alt="Register" src="https://github.com/user-attachments/assets/d9e4991e-23b8-49d0-b97e-3eb41d89b552" />
+<img width="392" height="851" alt="Heatmap progress" src="https://github.com/user-attachments/assets/f38368f6-d4c6-4c87-b55d-5776b6edd9bd" />
+<img width="392" height="851" alt="Edit" src="https://github.com/user-attachments/assets/48b59b6c-6788-49f1-b58e-928e6c81e416" />
+<img width="392" height="851" alt="Dashboard" src="https://github.com/user-attachments/assets/deb81541-1889-437d-a901-35453f163f94" />
 
 ---
 
